@@ -1,3 +1,3 @@
 # SmartToolSKit
-https://weblocalis.github.io/SmartToolSKit/
+https://weblocalis.github.io/SmartToolsKit/
  
