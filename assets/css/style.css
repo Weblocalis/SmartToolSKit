@@ -1549,13 +1549,6 @@ img.wp-post-image {
     color: #fff;
 }
 
-.witr_feature_btn2 a {
-    color: #fff;
-}
-
-.witr_feature_btn2 a:hover {
-    color: #0c5adb;
-}
 
 /* feature style 8-9 */
 .singleService {
@@ -13964,12 +13957,6 @@ a.dtbtn:hover::before,
 .solutech_serivce_area {
     padding: 95px 0px 70px;
     background: #00247E08;
-}
-
-.serivce_bg .witr_feature_btn2 a {
-    color: #fff;
-    font-weight: 600;
-    text-transform: uppercase;
 }
 
 .serivce_bg .witr_feature2 {
