@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur de QR Code</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .qr-container {
+      margin-top: 20px;
+    }
+    canvas {
+      margin-top: 10px;
+    }
+    .download-btn {
+      margin-top: 10px;
+      background: #28a745;
+    }
+    .download-btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Générateur de QR Code</h1>
+    <p>Créez vos QR codes facilement</p>
+  </header>
+  <main>
+    <input type="text" id="qrData" placeholder="Entrez les données pour le QR Code (texte, URL, etc.)" />
+    <button id="generateBtn">Générer le QR Code</button>
+
+    <div class="qr-container" id="qrContainer"></div>
+    <button id="downloadBtn" class="download-btn" style="display: none;">Télécharger</button>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    const qrContainer = document.getElementById("qrContainer");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      const data = document.getElementById("qrData").value.trim();
+
+      if (!data) {
+        alert("Veuillez entrer des données pour générer le QR Code.");
+        return;
+      }
+
+      // Réinitialiser le conteneur du QR Code
+      qrContainer.innerHTML = "";
+
+      // Générer le QR Code
+      QRCode.toCanvas(qrContainer, data, { width: 200 }, (error) => {
+        if (error) {
+          alert("Erreur lors de la génération du QR Code : " + error.message);
+          return;
+        }
+
+        // Afficher le bouton de téléchargement
+        downloadBtn.style.display = "block";
+      });
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const canvas = qrContainer.querySelector("canvas");
+
+      if (!canvas) {
+        alert("Aucun QR Code généré à télécharger.");
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.download = "qrcode.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  </script>
+</body>
+</html>

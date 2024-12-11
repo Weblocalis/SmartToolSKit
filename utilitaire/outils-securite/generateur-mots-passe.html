@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur de Mots de Passe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .generator {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    label, input, button {
+      margin: 10px 0;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input[type="checkbox"] {
+      width: auto;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 16px;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .copy-btn {
+      margin-top: 10px;
+      background: #28a745;
+    }
+    .copy-btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Générateur de Mots de Passe</h1>
+    <p>Créez des mots de passe sécurisés en un clic</p>
+  </header>
+  <main>
+    <div class="generator">
+      <label for="length">Longueur du mot de passe :</label>
+      <input type="number" id="length" min="6" max="50" placeholder="Ex : 12" />
+
+      <label><input type="checkbox" id="includeUppercase" /> Inclure des lettres majuscules</label>
+      <label><input type="checkbox" id="includeNumbers" /> Inclure des chiffres</label>
+      <label><input type="checkbox" id="includeSymbols" /> Inclure des symboles</label>
+
+      <button id="generateBtn">Générer le mot de passe</button>
+
+      <div class="result" id="passwordResult">
+        <p>Aucun mot de passe généré pour le moment.</p>
+      </div>
+      <button id="copyBtn" class="copy-btn" style="display: none;">Copier</button>
+    </div>
+  </main>
+
+  <script>
+    const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+    const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numberChars = "0123456789";
+    const symbolChars = "!@#$%^&*()_+[]{}|;:,.<>?";
+
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      const length = parseInt(document.getElementById("length").value);
+      const includeUppercase = document.getElementById("includeUppercase").checked;
+      const includeNumbers = document.getElementById("includeNumbers").checked;
+      const includeSymbols = document.getElementById("includeSymbols").checked;
+
+      if (isNaN(length) || length < 6 || length > 50) {
+        alert("Veuillez entrer une longueur entre 6 et 50 caractères.");
+        return;
+      }
+
+      let charPool = lowercaseChars;
+      if (includeUppercase) charPool += uppercaseChars;
+      if (includeNumbers) charPool += numberChars;
+      if (includeSymbols) charPool += symbolChars;
+
+      if (!charPool) {
+        alert("Veuillez sélectionner au moins une option.");
+        return;
+      }
+
+      const password = generatePassword(length, charPool);
+      document.getElementById("passwordResult").innerText = `Mot de passe : ${password}`;
+      document.getElementById("copyBtn").style.display = "block";
+    });
+
+    function generatePassword(length, charPool) {
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charPool.length);
+        password += charPool[randomIndex];
+      }
+      return password;
+    }
+
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      const passwordText = document.getElementById("passwordResult").innerText.replace("Mot de passe : ", "");
+      navigator.clipboard.writeText(passwordText)
+        .then(() => alert("Mot de passe copié dans le presse-papiers !"))
+        .catch(err => console.error("Erreur lors de la copie : ", err));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyseur Projet avec Statistiques</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .content {
+      margin-top: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #007BFF;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Analyseur Projet avec Statistiques</h1>
+    <p>Identifiez les styles ou scripts inutilisés et obtenez des statistiques globales.</p>
+  </header>
+  <main>
+    <button id="analyzeBtn">Lancer l'analyse</button>
+    <div class="content" id="reportContent">
+      <p>Appuyez sur "Lancer l'analyse" pour démarrer.</p>
+    </div>
+  </main>
+
+  <script>
+    let allStyles = [];
+    let allScripts = [];
+    let totalClasses = 0;
+    let totalIDs = 0;
+
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      const reportContent = document.getElementById("reportContent");
+      reportContent.innerHTML = "<p>Analyse en cours...</p>";
+
+      const files = await fetchFiles();
+      const htmlFiles = files.filter(f => f.endsWith(".html"));
+      const cssFiles = files.filter(f => f.endsWith(".css"));
+      const jsFiles = files.filter(f => f.endsWith(".js"));
+
+      const { classes, ids } = await extractClassesAndIDs(htmlFiles);
+      totalClasses = classes.length;
+      totalIDs = ids.length;
+
+      const unusedStyles = await findUnusedStyles(classes, cssFiles);
+      const unusedScripts = await findUnusedScripts(ids, jsFiles);
+
+      allStyles = unusedStyles;
+      allScripts = unusedScripts;
+
+      generateReport();
+    });
+
+    async function fetchFiles() {
+      try {
+        const response = await fetch("/data/analyzer-files.json");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const files = await response.json();
+        return [...files.html, ...files.css, ...files.js, ...files.venobox];
+      } catch (error) {
+        console.error("Erreur lors de la récupération des fichiers :", error);
+        alert("Impossible de charger la liste des fichiers. Veuillez vérifier le fichier analyzer-files.json.");
+        return [];
+      }
+    }
+
+    async function extractClassesAndIDs(htmlFiles) {
+      const classes = new Set();
+      const ids = new Set();
+
+      for (const file of htmlFiles) {
+        const response = await fetch(file);
+        const html = await response.text();
+
+        const classMatches = html.match(/class="([^"]+)"/g) || [];
+        classMatches.forEach(match => {
+          match.replace(/class="|"/g, "").split(" ").forEach(cls => classes.add(cls));
+        });
+
+        const idMatches = html.match(/id="([^"]+)"/g) || [];
+        idMatches.forEach(match => ids.add(match.replace(/id="|"/g, "")));
+      }
+
+      return { classes: Array.from(classes), ids: Array.from(ids) };
+    }
+
+    async function findUnusedStyles(classes, cssFiles) {
+      const unused = [];
+
+      for (const file of cssFiles) {
+        const response = await fetch(file);
+        const css = await response.text();
+        const matches = css.match(/\.[a-zA-Z0-9_-]+(:[a-zA-Z-]+)?/g) || [];
+        const fileClasses = new Set(matches.map(cls => cls.replace(".", "")));
+
+        fileClasses.forEach(cls => {
+          if (!classes.includes(cls)) {
+            unused.push({ class: cls, file });
+          }
+        });
+      }
+
+      return unused;
+    }
+
+    async function findUnusedScripts(ids, jsFiles) {
+      const unused = [];
+      for (const file of jsFiles) {
+        const response = await fetch(file);
+        const js = await response.text();
+        ids.forEach(id => {
+          const regex = new RegExp(`#${id}\\b|document.querySelector\\(['"]#${id}['"]\\)`, "g");
+
+          if (!regex.test(js)) {
+            unused.push({ id, file });
+          }
+        });
+      }
+      return unused;
+    }
+
+    function generateReport() {
+      let content = `
+        <h2>Rapport d'Analyse</h2>
+        <p><strong>Statistiques Globales :</strong></p>
+        <ul>
+          <li>Total de classes utilisées dans le HTML : ${totalClasses}</li>
+          <li>Total d'IDs utilisés dans le HTML : ${totalIDs}</li>
+          <li>Total de styles inutilisés : ${allStyles.length}</li>
+          <li>Total de scripts inutilisés : ${allScripts.length}</li>
+        </ul>
+      `;
+
+      content += `
+        <h3>Styles inutilisés</h3>
+        ${generateTable(allStyles, "Classe", "Fichier")}
+      `;
+
+      content += `
+        <h3>Scripts inutilisés</h3>
+        ${generateTable(allScripts, "ID", "Fichier")}
+      `;
+
+      document.getElementById("reportContent").innerHTML = content;
+    }
+
+    function generateTable(data, col1, col2) {
+      if (!data.length) return "<p>Aucune correspondance trouvée.</p>";
+
+      let table = `
+        <table>
+          <thead>
+            <tr>
+              <th>${col1}</th>
+              <th>${col2}</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach(item => {
+        table += `
+          <tr>
+            <td>${item.class || item.id}</td>
+            <td>${item.file}</td>
+          </tr>
+        `;
+      });
+
+      table += "</tbody></table>";
+      return table;
+    }
+  </script>
+</body>
+
+</html>

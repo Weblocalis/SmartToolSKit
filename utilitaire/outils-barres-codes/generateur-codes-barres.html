@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Codes-Barres</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+        }
+
+        header {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        input,
+        select,
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .barcode-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            margin-top: 10px;
+            background: #28a745;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Générateur de Codes-Barres</h1>
+        <p>Créez vos codes-barres facilement</p>
+    </header>
+    <main>
+        <input type="text" id="barcodeData" placeholder="Entrez les données pour le code-barres" />
+        <select id="barcodeType">
+            <option value="CODE128">Code 128</option>
+            <option value="EAN13">EAN-13</option>
+            <option value="UPC">UPC</option>
+        </select>
+        <button id="generateBtn">Générer le code-barres</button>
+
+        <div class="barcode-container">
+            <canvas id="barcodeCanvas"></canvas>
+            <button id="downloadBtn" class="download-btn" style="display: none;">Télécharger</button>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script>
+        document.getElementById("generateBtn").addEventListener("click", () => {
+            const data = document.getElementById("barcodeData").value.trim();
+            const type = document.getElementById("barcodeType").value;
+            const canvas = document.getElementById("barcodeCanvas");
+
+            if (!data) {
+                alert("Veuillez entrer des données pour générer le code-barres.");
+                return;
+            }
+
+            try {
+                // Génération du code-barres
+                JsBarcode(canvas, data, {
+                    format: type,
+                    displayValue: true,
+                    fontSize: 16,
+                });
+
+                // Afficher le bouton de téléchargement
+                document.getElementById("downloadBtn").style.display = "block";
+            } catch (error) {
+                alert("Erreur lors de la génération du code-barres : " + error.message);
+            }
+        });
+
+        document.getElementById("downloadBtn").addEventListener("click", () => {
+            const canvas = document.getElementById("barcodeCanvas");
+            const link = document.createElement("a");
+            link.download = "barcode.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    </script>
+</body>
+
+</html>

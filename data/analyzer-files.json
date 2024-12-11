@@ -1,0 +1,38 @@
+{
+  "html": [
+    "blog-left-sidebar.html",
+    "blog.html",
+    "contact.html",
+    "faq.html",
+    "index.html",
+    "service-details.html",
+    "single-blog.html",
+    "testimonial.html",
+    "why-choose-us.html"
+  ],
+  "css": [
+    "assets/css/bootstrap.min.css",
+    "assets/css/em-breadcrumb.css",
+    "assets/css/plugin_theme_css.css",
+    "assets/css/responsive.css",
+    "style.css"
+  ],
+  "js": [
+    "assets/js/ajax-mail.js",
+    "assets/js/bootstrap.min.js",
+    "assets/js/bootstrap.min.js.map",
+    "assets/js/imagesloaded.pkgd.min.js",
+    "assets/js/isotope.pkgd.min.js",
+    "assets/js/jquery.meanmenu.js",
+    "assets/js/map.js",
+    "assets/js/slick.min.js",
+    "assets/js/theme-pluginjs.js",
+    "assets/js/theme.js",
+    "assets/js/vendor/jquery-3.5.1.min.js"
+  ],
+  "venobox": [
+    "venobox/venobox.css",
+    "venobox/venobox.js",
+    "venobox/venobox.min.js"
+  ]
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horodatage Unix Actuel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+        }
+
+        header {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            background: #28a745;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Horodatage Unix Actuel</h1>
+        <p>Obtenez l'horodatage Unix actuel</p>
+    </header>
+    <main>
+        <button id="generateBtn">Obtenir l'Horodatage Unix</button>
+
+        <div class="result" id="result">
+            <p>Aucun horodatage généré pour le moment.</p>
+        </div>
+        <button id="copyBtn" class="copy-btn" style="display: none;">Copier l'Horodatage Unix</button>
+    </main>
+
+    <script>
+        document.getElementById("generateBtn").addEventListener("click", () => {
+            const unixTimestamp = Math.floor(Date.now() / 1000);  // Horodatage Unix en secondes
+            const date = new Date(unixTimestamp * 1000);  // Convertir en objet Date
+
+            const formattedDate = date.toLocaleString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false
+            });
+
+            document.getElementById("result").innerHTML = `
+        <p><strong>Horodatage Unix actuel :</strong> ${unixTimestamp}</p>
+        <p><strong>Date et Heure :</strong> ${formattedDate}</p>
+      `;
+            document.getElementById("copyBtn").style.display = "block";
+        });
+
+        document.getElementById("copyBtn").addEventListener("click", () => {
+            const unixTimestamp = Math.floor(Date.now() / 1000);  // Horodatage Unix
+            navigator.clipboard.writeText(unixTimestamp)
+                .then(() => alert("Horodatage Unix copié dans le presse-papiers !"))
+                .catch(err => console.error("Erreur lors de la copie : ", err));
+        });
+    </script>
+</body>
+
+</html>

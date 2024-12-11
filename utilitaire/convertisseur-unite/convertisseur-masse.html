@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertisseur de Masse</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .converter {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    input, select {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result, .history {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history li {
+      background: #f4f4f4;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .clear-history {
+      background: #FF4D4D;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convertisseur de Masse</h1>
+    <p>Convertissez facilement des masses entre différentes unités</p>
+  </header>
+  <main>
+    <div class="converter">
+      <label for="inputMass">Entrez une masse :</label>
+      <input type="number" id="inputMass" placeholder="Ex: 1000" />
+
+      <label for="inputUnit">De :</label>
+      <select id="inputUnit">
+        <option value="g">Grammes (g)</option>
+        <option value="kg">Kilogrammes (kg)</option>
+        <option value="mg">Milligrammes (mg)</option>
+        <option value="t">Tonnes (t)</option>
+        <option value="lb">Livres (lb)</option>
+        <option value="oz">Onces (oz)</option>
+      </select>
+
+      <label for="outputUnit">Vers :</label>
+      <select id="outputUnit">
+        <option value="g">Grammes (g)</option>
+        <option value="kg">Kilogrammes (kg)</option>
+        <option value="mg">Milligrammes (mg)</option>
+        <option value="t">Tonnes (t)</option>
+        <option value="lb">Livres (lb)</option>
+        <option value="oz">Onces (oz)</option>
+      </select>
+
+      <button id="convertBtn">Convertir</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="history">
+      <h2>Historique des conversions</h2>
+      <ul id="historyList"></ul>
+      <button class="clear-history" id="clearHistoryBtn">Effacer l'historique</button>
+    </div>
+  </main>
+
+  <script>
+    const conversionRates = {
+      g: { toKg: 0.001, toMg: 1000, toT: 0.000001, toLb: 0.00220462, toOz: 0.035274 },
+      kg: { toG: 1000, toMg: 1000000, toT: 0.001, toLb: 2.20462, toOz: 35.274 },
+      mg: { toG: 0.001, toKg: 0.000001, toT: 1e-9, toLb: 2.2046e-6, toOz: 3.5274e-5 },
+      t: { toG: 1000000, toKg: 1000, toMg: 1000000000, toLb: 2204.62, toOz: 35274 },
+      lb: { toG: 453.592, toKg: 0.453592, toMg: 453592, toT: 0.000453592, toOz: 16 },
+      oz: { toG: 28.3495, toKg: 0.0283495, toMg: 28349.5, toT: 2.83495e-5, toLb: 0.0625 }
+    };
+
+    const history = [];
+
+    document.getElementById("convertBtn").addEventListener("click", () => {
+      const inputMass = parseFloat(document.getElementById("inputMass").value);
+      const inputUnit = document.getElementById("inputUnit").value;
+      const outputUnit = document.getElementById("outputUnit").value;
+
+      if (isNaN(inputMass)) {
+        document.getElementById("result").innerText = "Veuillez entrer une valeur valide.";
+        return;
+      }
+
+      let result;
+      if (inputUnit === outputUnit) {
+        result = inputMass; // Pas de conversion si les unités sont identiques
+      } else {
+        result = convertMass(inputMass, inputUnit, outputUnit);
+      }
+
+      // Afficher le résultat
+      document.getElementById("result").innerText = `Résultat : ${result.toFixed(4)} ${outputUnit}`;
+
+      // Ajouter au tableau historique
+      history.push({
+        inputMass: inputMass.toFixed(4),
+        inputUnit,
+        outputMass: result.toFixed(4),
+        outputUnit
+      });
+
+      // Mettre à jour l’historique
+      updateHistory();
+    });
+
+    function convertMass(value, fromUnit, toUnit) {
+      const rates = conversionRates[fromUnit];
+      return value * rates[`to${capitalizeFirstLetter(toUnit)}`];
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function updateHistory() {
+      const historyList = document.getElementById("historyList");
+      historyList.innerHTML = "";
+
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = `${item.inputMass} ${item.inputUnit} → ${item.outputMass} ${item.outputUnit}`;
+        historyList.appendChild(li);
+      });
+    }
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      history.length = 0; // Réinitialiser le tableau
+      updateHistory(); // Mettre à jour l'interface
+    });
+  </script>
+</body>
+</html>

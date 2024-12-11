@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Éditeur/Afficheur HTML</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+      justify-content: center;
+    }
+    textarea {
+      width: 45%;
+      height: 300px;
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    iframe {
+      width: 45%;
+      height: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .reset-btn {
+      background: #FF4D4D;
+    }
+    .reset-btn:hover {
+      background: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Éditeur/Afficheur HTML</h1>
+    <p>Modifiez et visualisez votre code HTML en temps réel</p>
+  </header>
+  <main>
+    <textarea id="htmlEditor">
+<div style="text-align:center;">
+  <h1>Bienvenue</h1>
+  <p>Ceci est un exemple de code HTML.</p>
+</div>
+    </textarea>
+    <iframe id="htmlViewer"></iframe>
+    <div class="buttons">
+      <button id="updateBtn">Mettre à jour</button>
+      <button id="resetBtn" class="reset-btn">Réinitialiser</button>
+      <button id="copyBtn">Copier le code</button>
+    </div>
+  </main>
+
+  <script>
+    const editor = document.getElementById("htmlEditor");
+    const viewer = document.getElementById("htmlViewer");
+    const defaultHTML = editor.value;
+
+    // Mettre à jour l'iframe en fonction du contenu de l'éditeur
+    document.getElementById("updateBtn").addEventListener("click", () => {
+      viewer.contentDocument.body.innerHTML = editor.value;
+    });
+
+    // Réinitialiser l'éditeur au contenu par défaut
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      editor.value = defaultHTML;
+      viewer.contentDocument.body.innerHTML = defaultHTML;
+    });
+
+    // Copier le contenu de l'éditeur dans le presse-papiers
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(editor.value)
+        .then(() => alert("Code copié dans le presse-papiers !"))
+        .catch(err => console.error("Erreur lors de la copie : ", err));
+    });
+
+    // Initialiser l'iframe avec le contenu par défaut
+    viewer.contentDocument.body.innerHTML = defaultHTML;
+  </script>
+</body>
+</html>

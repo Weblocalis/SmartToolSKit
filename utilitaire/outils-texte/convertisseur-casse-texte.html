@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertisseur de Casse de Texte</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    textarea, button, select {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 150px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 18px;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .copy-btn {
+      margin-top: 10px;
+      background: #28a745;
+    }
+    .copy-btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convertisseur de Casse de Texte</h1>
+    <p>Transformez facilement votre texte en différentes casses</p>
+  </header>
+  <main>
+    <textarea id="inputText" placeholder="Entrez votre texte ici..."></textarea>
+
+    <select id="caseSelect">
+      <option value="uppercase">Majuscules</option>
+      <option value="lowercase">Minuscules</option>
+      <option value="capitalize">Casse capitalisée</option>
+    </select>
+
+    <button id="convertBtn">Convertir</button>
+
+    <div class="result" id="result">
+      <p>Aucun texte transformé pour le moment.</p>
+    </div>
+    <button id="copyBtn" class="copy-btn" style="display: none;">Copier le texte transformé</button>
+  </main>
+
+  <script>
+    document.getElementById("convertBtn").addEventListener("click", () => {
+      const inputText = document.getElementById("inputText").value;
+      const caseType = document.getElementById("caseSelect").value;
+      
+      let transformedText = "";
+
+      if (caseType === "uppercase") {
+        transformedText = inputText.toUpperCase();
+      } else if (caseType === "lowercase") {
+        transformedText = inputText.toLowerCase();
+      } else if (caseType === "capitalize") {
+        transformedText = inputText
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
+
+      document.getElementById("result").innerHTML = `<p><strong>Texte transformé :</strong> ${transformedText}</p>`;
+      document.getElementById("copyBtn").style.display = "block";
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      const transformedText = document.getElementById("result").innerText.replace("Texte transformé : ", "");
+      navigator.clipboard.writeText(transformedText)
+        .then(() => alert("Texte copié dans le presse-papiers !"))
+        .catch(err => console.error("Erreur lors de la copie : ", err));
+    });
+  </script>
+</body>
+</html>

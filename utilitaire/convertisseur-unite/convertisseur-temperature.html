@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertisseur de Température avec Rankine</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .converter {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    input, select {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result, .history {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history li {
+      background: #f4f4f4;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .clear-history {
+      background: #FF4D4D;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convertisseur de Température avec Rankine</h1>
+    <p>Convertissez facilement les températures entre Celsius, Fahrenheit, Kelvin et Rankine</p>
+  </header>
+  <main>
+    <div class="converter">
+      <label for="inputTemp">Entrez une température :</label>
+      <input type="number" id="inputTemp" placeholder="Ex: 25" />
+
+      <label for="inputUnit">De :</label>
+      <select id="inputUnit">
+        <option value="C">Celsius (°C)</option>
+        <option value="F">Fahrenheit (°F)</option>
+        <option value="K">Kelvin (K)</option>
+        <option value="R">Rankine (°R)</option>
+      </select>
+
+      <label for="outputUnit">Vers :</label>
+      <select id="outputUnit">
+        <option value="C">Celsius (°C)</option>
+        <option value="F">Fahrenheit (°F)</option>
+        <option value="K">Kelvin (K)</option>
+        <option value="R">Rankine (°R)</option>
+      </select>
+
+      <button id="convertBtn">Convertir</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="history">
+      <h2>Historique des conversions</h2>
+      <ul id="historyList"></ul>
+      <button class="clear-history" id="clearHistoryBtn">Effacer l'historique</button>
+    </div>
+  </main>
+
+  <script>
+    // Historique des conversions
+    const history = [];
+
+    document.getElementById("convertBtn").addEventListener("click", () => {
+      const inputTemp = parseFloat(document.getElementById("inputTemp").value);
+      const inputUnit = document.getElementById("inputUnit").value;
+      const outputUnit = document.getElementById("outputUnit").value;
+
+      if (isNaN(inputTemp)) {
+        document.getElementById("result").innerText = "Veuillez entrer une température valide.";
+        return;
+      }
+
+      let result;
+
+      // Conversion entre les unités
+      if (inputUnit === outputUnit) {
+        result = inputTemp; // Pas de conversion si les unités sont identiques
+      } else if (inputUnit === "C" && outputUnit === "F") {
+        result = (inputTemp * 9) / 5 + 32; // Celsius vers Fahrenheit
+      } else if (inputUnit === "C" && outputUnit === "K") {
+        result = inputTemp + 273.15; // Celsius vers Kelvin
+      } else if (inputUnit === "C" && outputUnit === "R") {
+        result = (inputTemp + 273.15) * 9 / 5; // Celsius vers Rankine
+      } else if (inputUnit === "F" && outputUnit === "C") {
+        result = ((inputTemp - 32) * 5) / 9; // Fahrenheit vers Celsius
+      } else if (inputUnit === "F" && outputUnit === "K") {
+        result = ((inputTemp - 32) * 5) / 9 + 273.15; // Fahrenheit vers Kelvin
+      } else if (inputUnit === "F" && outputUnit === "R") {
+        result = inputTemp + 459.67; // Fahrenheit vers Rankine
+      } else if (inputUnit === "K" && outputUnit === "C") {
+        result = inputTemp - 273.15; // Kelvin vers Celsius
+      } else if (inputUnit === "K" && outputUnit === "F") {
+        result = ((inputTemp - 273.15) * 9) / 5 + 32; // Kelvin vers Fahrenheit
+      } else if (inputUnit === "K" && outputUnit === "R") {
+        result = inputTemp * 9 / 5; // Kelvin vers Rankine
+      } else if (inputUnit === "R" && outputUnit === "C") {
+        result = (inputTemp - 491.67) * 5 / 9; // Rankine vers Celsius
+      } else if (inputUnit === "R" && outputUnit === "F") {
+        result = inputTemp - 459.67; // Rankine vers Fahrenheit
+      } else if (inputUnit === "R" && outputUnit === "K") {
+        result = inputTemp * 5 / 9; // Rankine vers Kelvin
+      }
+
+      // Afficher le résultat
+      document.getElementById("result").innerText = `Résultat : ${result.toFixed(2)} ${outputUnit}`;
+
+      // Ajouter au tableau historique
+      history.push({
+        inputTemp: inputTemp.toFixed(2),
+        inputUnit,
+        outputTemp: result.toFixed(2),
+        outputUnit
+      });
+
+      // Mettre à jour l’historique dans l'interface
+      updateHistory();
+    });
+
+    // Fonction pour mettre à jour l'historique
+    function updateHistory() {
+      const historyList = document.getElementById("historyList");
+      historyList.innerHTML = "";
+
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = `${item.inputTemp} ${item.inputUnit} → ${item.outputTemp} ${item.outputUnit}`;
+        historyList.appendChild(li);
+      });
+    }
+
+    // Effacer l'historique
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      history.length = 0; // Réinitialiser le tableau
+      updateHistory(); // Mettre à jour l'interface
+    });
+  </script>
+</body>
+</html>

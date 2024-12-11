@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertisseur de Temps</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .converter {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    input, select {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result, .history {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history li {
+      background: #f4f4f4;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .clear-history {
+      background: #FF4D4D;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convertisseur de Temps</h1>
+    <p>Convertissez facilement des unités de temps</p>
+  </header>
+  <main>
+    <div class="converter">
+      <label for="inputTime">Entrez une valeur :</label>
+      <input type="number" id="inputTime" placeholder="Ex: 60" />
+
+      <label for="inputUnit">De :</label>
+      <select id="inputUnit">
+        <option value="seconds">Secondes</option>
+        <option value="minutes">Minutes</option>
+        <option value="hours">Heures</option>
+        <option value="days">Jours</option>
+        <option value="weeks">Semaines</option>
+        <option value="months">Mois</option>
+        <option value="years">Années</option>
+      </select>
+
+      <label for="outputUnit">Vers :</label>
+      <select id="outputUnit">
+        <option value="seconds">Secondes</option>
+        <option value="minutes">Minutes</option>
+        <option value="hours">Heures</option>
+        <option value="days">Jours</option>
+        <option value="weeks">Semaines</option>
+        <option value="months">Mois</option>
+        <option value="years">Années</option>
+      </select>
+
+      <button id="convertBtn">Convertir</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="history">
+      <h2>Historique des conversions</h2>
+      <ul id="historyList"></ul>
+      <button class="clear-history" id="clearHistoryBtn">Effacer l'historique</button>
+    </div>
+  </main>
+
+  <script>
+    const conversionRates = {
+      seconds: 1,
+      minutes: 60,
+      hours: 3600,
+      days: 86400,
+      weeks: 604800,
+      months: 2628000, // Approximatif : 30.44 jours
+      years: 31536000 // Approximatif : 365.25 jours
+    };
+
+    const history = [];
+
+    document.getElementById("convertBtn").addEventListener("click", () => {
+      const inputTime = parseFloat(document.getElementById("inputTime").value);
+      const inputUnit = document.getElementById("inputUnit").value;
+      const outputUnit = document.getElementById("outputUnit").value;
+
+      if (isNaN(inputTime)) {
+        document.getElementById("result").innerText = "Veuillez entrer une valeur valide.";
+        return;
+      }
+
+      // Convertir la valeur en secondes (unité de base)
+      const timeInSeconds = inputTime * conversionRates[inputUnit];
+
+      // Convertir les secondes dans l'unité de sortie
+      const result = timeInSeconds / conversionRates[outputUnit];
+
+      // Afficher le résultat
+      document.getElementById("result").innerText = `Résultat : ${result.toFixed(2)} ${outputUnit}`;
+
+      // Ajouter au tableau historique
+      history.push({
+        inputTime: inputTime.toFixed(2),
+        inputUnit,
+        outputTime: result.toFixed(2),
+        outputUnit
+      });
+
+      // Mettre à jour l’historique
+      updateHistory();
+    });
+
+    function updateHistory() {
+      const historyList = document.getElementById("historyList");
+      historyList.innerHTML = "";
+
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = `${item.inputTime} ${item.inputUnit} → ${item.outputTime} ${item.outputUnit}`;
+        historyList.appendChild(li);
+      });
+    }
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      history.length = 0; // Réinitialiser le tableau
+      updateHistory(); // Mettre à jour l'interface
+    });
+  </script>
+</body>
+</html>

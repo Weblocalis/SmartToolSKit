@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertisseur de Surface</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .converter {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    input, select {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result, .history {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history li {
+      background: #f4f4f4;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .clear-history {
+      background: #FF4D4D;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convertisseur de Surface</h1>
+    <p>Convertissez facilement des surfaces entre différentes unités</p>
+  </header>
+  <main>
+    <div class="converter">
+      <label for="inputArea">Entrez une surface :</label>
+      <input type="number" id="inputArea" placeholder="Ex: 1000" />
+
+      <label for="inputUnit">De :</label>
+      <select id="inputUnit">
+        <option value="mm2">Millimètres carrés (mm²)</option>
+        <option value="cm2">Centimètres carrés (cm²)</option>
+        <option value="m2">Mètres carrés (m²)</option>
+        <option value="km2">Kilomètres carrés (km²)</option>
+        <option value="ft2">Pieds carrés (ft²)</option>
+        <option value="in2">Pouces carrés (in²)</option>
+        <option value="ac">Acres (ac)</option>
+        <option value="ha">Hectares (ha)</option>
+      </select>
+
+      <label for="outputUnit">Vers :</label>
+      <select id="outputUnit">
+        <option value="mm2">Millimètres carrés (mm²)</option>
+        <option value="cm2">Centimètres carrés (cm²)</option>
+        <option value="m2">Mètres carrés (m²)</option>
+        <option value="km2">Kilomètres carrés (km²)</option>
+        <option value="ft2">Pieds carrés (ft²)</option>
+        <option value="in2">Pouces carrés (in²)</option>
+        <option value="ac">Acres (ac)</option>
+        <option value="ha">Hectares (ha)</option>
+      </select>
+
+      <button id="convertBtn">Convertir</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="history">
+      <h2>Historique des conversions</h2>
+      <ul id="historyList"></ul>
+      <button class="clear-history" id="clearHistoryBtn">Effacer l'historique</button>
+    </div>
+  </main>
+
+  <script>
+    const conversionRates = {
+      mm2: { toCm2: 0.01, toM2: 0.000001, toKm2: 1e-12, toFt2: 0.000010764, toIn2: 0.0015500031, toAc: 2.4711e-8, toHa: 1e-10 },
+      cm2: { toMm2: 100, toM2: 0.0001, toKm2: 1e-8, toFt2: 0.00010764, toIn2: 0.15500031, toAc: 2.4711e-7, toHa: 1e-9 },
+      m2: { toMm2: 1000000, toCm2: 10000, toKm2: 1e-6, toFt2: 10.7639, toIn2: 1550.0031, toAc: 0.00024711, toHa: 0.0001 },
+      km2: { toMm2: 1e+12, toCm2: 1e+10, toM2: 1e+6, toFt2: 1.07639e+7, toIn2: 1.5500031e+9, toAc: 247.11, toHa: 100 },
+      ft2: { toMm2: 92903.04, toCm2: 929.0304, toM2: 0.092903, toKm2: 9.2903e-8, toIn2: 144, toAc: 2.2957e-5, toHa: 9.2903e-6 },
+      in2: { toMm2: 645.16, toCm2: 6.4516, toM2: 0.00064516, toKm2: 6.4516e-10, toFt2: 0.00694444, toAc: 1.5942e-7, toHa: 6.4516e-8 },
+      ac: { toMm2: 4.468e+7, toCm2: 4.468e+5, toM2: 4046.8564, toKm2: 0.0040469, toFt2: 43560, toIn2: 6272640, toHa: 0.4047 },
+      ha: { toMm2: 1e+8, toCm2: 1e+6, toM2: 10000, toKm2: 0.01, toFt2: 107639.104, toIn2: 1550003.1, toAc: 2.4711, toHa: 1 }
+    };
+
+    const history = [];
+
+    document.getElementById("convertBtn").addEventListener("click", () => {
+      const inputArea = parseFloat(document.getElementById("inputArea").value);
+      const inputUnit = document.getElementById("inputUnit").value;
+      const outputUnit = document.getElementById("outputUnit").value;
+
+      if (isNaN(inputArea)) {
+        document.getElementById("result").innerText = "Veuillez entrer une valeur valide.";
+        return;
+      }
+
+      let result;
+      if (inputUnit === outputUnit) {
+        result = inputArea; // Pas de conversion si les unités sont identiques
+      } else {
+        result = convertArea(inputArea, inputUnit, outputUnit);
+      }
+
+      // Afficher le résultat
+      document.getElementById("result").innerText = `Résultat : ${result.toFixed(4)} ${outputUnit}`;
+
+      // Ajouter au tableau historique
+      history.push({
+        inputArea: inputArea.toFixed(4),
+        inputUnit,
+        outputArea: result.toFixed(4),
+        outputUnit
+      });
+
+      // Mettre à jour l’historique
+      updateHistory();
+    });
+
+    function convertArea(value, fromUnit, toUnit) {
+      const rates = conversionRates[fromUnit];
+      return value * rates[`to${capitalizeFirstLetter(toUnit)}`];
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function updateHistory() {
+      const historyList = document.getElementById("historyList");
+      historyList.innerHTML = "";
+
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = `${item.inputArea} ${item.inputUnit} → ${item.outputArea} ${item.outputUnit}`;
+        historyList.appendChild(li);
+      });
+    }
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      history.length = 0; // Réinitialiser le tableau
+      updateHistory(); // Mettre à jour l'interface
+    });
+  </script>
+</body>
+</html>

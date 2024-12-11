@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horloge Mondiale</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    select, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      border-radius: 5px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .clock-container {
+      margin-top: 20px;
+    }
+    .city-time {
+      font-size: 18px;
+      margin: 10px 0;
+      padding: 10px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .city-time p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Horloge Mondiale</h1>
+    <p>Voir l'heure dans différentes villes du monde</p>
+  </header>
+  <main>
+    <label for="citySelect">Sélectionner une ville :</label>
+    <select id="citySelect">
+      <option value="Europe/Paris">Paris</option>
+      <option value="America/New_York">New York</option>
+      <option value="Asia/Tokyo">Tokyo</option>
+      <option value="Europe/London">Londres</option>
+      <option value="Australia/Sydney">Sydney</option>
+      <option value="America/Los_Angeles">Los Angeles</option>
+    </select>
+    <button id="showTimeBtn">Afficher l'heure</button>
+
+    <div class="clock-container" id="clockContainer"></div>
+  </main>
+
+  <script>
+    document.getElementById("showTimeBtn").addEventListener("click", () => {
+      const selectedCity = document.getElementById("citySelect").value;
+      displayTime(selectedCity);
+    });
+
+    function displayTime(city) {
+      const clockContainer = document.getElementById("clockContainer");
+      clockContainer.innerHTML = `<p>Chargement de l'heure pour ${city}...</p>`;
+
+      fetch(`https://worldtimeapi.org/api/timezone/${city}`)
+        .then(response => response.json())
+        .then(data => {
+          const cityTime = new Date(data.datetime);
+          const timeString = cityTime.toLocaleString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: false
+          });
+          
+          clockContainer.innerHTML = `
+            <div class="city-time">
+              <h3>Heure actuelle à ${city.replace('_', ' ').split('/')[1]}</h3>
+              <p><strong>${timeString}</strong></p>
+            </div>
+          `;
+        })
+        .catch(error => {
+          clockContainer.innerHTML = `<p>Erreur lors de la récupération de l'heure pour ${city}.</p>`;
+          console.error("Error fetching time:", error);
+        });
+    }
+  </script>
+</body>
+</html>

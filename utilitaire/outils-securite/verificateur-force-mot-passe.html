@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérificateur de Force de Mot de Passe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    input[type="password"] {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .password-strength-bar {
+      margin-top: 20px;
+      height: 10px;
+      border-radius: 5px;
+      width: 0%;  /* Default width to 0 */
+      transition: width 0.3s ease-in-out;  /* Smooth transition */
+    }
+    .weak {
+      background-color: red;
+    }
+    .medium {
+      background-color: yellow;
+    }
+    .strong {
+      background-color: green;
+    }
+    .message {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    .criteria {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ff0000;
+    }
+    .criteria-valid {
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Vérificateur de Force de Mot de Passe</h1>
+    <p>Évaluez la sécurité de votre mot de passe</p>
+  </header>
+  <main>
+    <input type="password" id="passwordInput" placeholder="Entrez votre mot de passe" />
+    <div class="password-strength-bar" id="strengthBar"></div>
+    <div class="message" id="strengthMessage">Entrez un mot de passe pour commencer.</div>
+    <div id="criteriaMessage" class="criteria">Critères manquants :</div>
+  </main>
+
+  <script>
+    const passwordInput = document.getElementById("passwordInput");
+    const strengthBar = document.getElementById("strengthBar");
+    const strengthMessage = document.getElementById("strengthMessage");
+    const criteriaMessage = document.getElementById("criteriaMessage");
+
+    const checkPasswordStrength = (password) => {
+      let strength = 0;
+      let missingCriteria = [];
+      let isLengthValid = password.length >= 8;
+
+      // Longueur du mot de passe
+      if (isLengthValid) strength += 1;
+      else missingCriteria.push("Longueur minimale (8 caractères)");
+
+      // Types de caractères
+      if (/[A-Z]/.test(password)) strength += 1;
+      else missingCriteria.push("Majuscules");
+
+      if (/[a-z]/.test(password)) strength += 1;
+      if (/[0-9]/.test(password)) strength += 1;
+      else missingCriteria.push("Chiffres");
+
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 1;
+      else missingCriteria.push("Symboles");
+
+      return { strength, missingCriteria, isLengthValid };
+    };
+
+    passwordInput.addEventListener("input", () => {
+      const password = passwordInput.value;
+      const { strength, missingCriteria, isLengthValid } = checkPasswordStrength(password);
+
+      // Mise à jour de la barre de progression
+      const strengthPercentage = (strength / 5) * 100;
+      strengthBar.style.width = `${strengthPercentage}%`;
+
+      // Affichage des messages en fonction de la force
+      if (strength === 0) {
+        strengthBar.className = "";
+        strengthMessage.textContent = "Entrez un mot de passe pour commencer.";
+      } else if (strength === 1) {
+        strengthBar.className = "weak";
+        strengthMessage.textContent = "Mot de passe faible";
+      } else if (strength === 2) {
+        strengthBar.className = "medium";
+        strengthMessage.textContent = "Mot de passe moyen";
+      } else if (strength === 3) {
+        strengthBar.className = "medium";
+        strengthMessage.textContent = "Mot de passe solide";
+      } else if (strength >= 4) {
+        strengthBar.className = "strong";
+        strengthMessage.textContent = "Mot de passe très solide";
+      }
+
+      // Affichage des critères manquants
+      if (missingCriteria.length > 0) {
+        criteriaMessage.innerHTML = "Critères manquants : " + missingCriteria.join(", ");
+        criteriaMessage.classList.remove("criteria-valid");
+      } else {
+        criteriaMessage.innerHTML = "Tous les critères sont remplis.";
+        criteriaMessage.classList.add("criteria-valid");
+      }
+    });
+  </script>
+</body>
+</html>

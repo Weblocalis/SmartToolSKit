@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertisseur Numérique</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    .converter {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    input, select {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result, .history {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+    .history li {
+      background: #f4f4f4;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .clear-history {
+      background: #FF4D4D;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Convertisseur Numérique</h1>
+    <p>Convertissez facilement des nombres entre les systèmes binaires, octaux, décimaux et hexadécimaux.</p>
+  </header>
+  <main>
+    <div class="converter">
+      <label for="inputNumber">Entrez un nombre :</label>
+      <input type="text" id="inputNumber" placeholder="Ex: 1010" />
+
+      <label for="inputBase">De :</label>
+      <select id="inputBase">
+        <option value="2">Binaire (base 2)</option>
+        <option value="8">Octal (base 8)</option>
+        <option value="10">Décimal (base 10)</option>
+        <option value="16">Hexadécimal (base 16)</option>
+      </select>
+
+      <label for="outputBase">Vers :</label>
+      <select id="outputBase">
+        <option value="2">Binaire (base 2)</option>
+        <option value="8">Octal (base 8)</option>
+        <option value="10">Décimal (base 10)</option>
+        <option value="16">Hexadécimal (base 16)</option>
+      </select>
+
+      <button id="convertBtn">Convertir</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="history">
+      <h2>Historique des conversions</h2>
+      <ul id="historyList"></ul>
+      <button class="clear-history" id="clearHistoryBtn">Effacer l'historique</button>
+    </div>
+  </main>
+
+  <script>
+    const history = [];
+
+    document.getElementById("convertBtn").addEventListener("click", () => {
+      const inputNumber = document.getElementById("inputNumber").value.trim();
+      const inputBase = parseInt(document.getElementById("inputBase").value);
+      const outputBase = parseInt(document.getElementById("outputBase").value);
+
+      // Vérification de la validité du nombre dans la base d'entrée
+      if (!isValidNumber(inputNumber, inputBase)) {
+        document.getElementById("result").innerText = "Veuillez entrer un nombre valide dans la base spécifiée.";
+        return;
+      }
+
+      const decimalValue = parseInt(inputNumber, inputBase);  // Convertir en base décimale
+
+      let result;
+      if (outputBase === 10) {
+        result = decimalValue;  // Convertir en décimal
+      } else if (outputBase === 2) {
+        result = decimalValue.toString(2);  // Convertir en binaire
+      } else if (outputBase === 8) {
+        result = decimalValue.toString(8);  // Convertir en octal
+      } else if (outputBase === 16) {
+        result = decimalValue.toString(16).toUpperCase();  // Convertir en hexadécimal
+      }
+
+      // Afficher le résultat
+      document.getElementById("result").innerText = `Résultat : ${result}`;
+
+      // Ajouter au tableau historique
+      history.push({
+        inputNumber,
+        inputBase: getBaseName(inputBase),
+        outputNumber: result,
+        outputBase: getBaseName(outputBase)
+      });
+
+      // Mettre à jour l’historique
+      updateHistory();
+    });
+
+    function isValidNumber(number, base) {
+      if (base === 2) {
+        return /^[01]+$/.test(number);  // Vérifier binaire
+      } else if (base === 8) {
+        return /^[0-7]+$/.test(number);  // Vérifier octal
+      } else if (base === 10) {
+        return /^\d+$/.test(number);  // Vérifier décimal
+      } else if (base === 16) {
+        return /^[0-9A-Fa-f]+$/.test(number);  // Vérifier hexadécimal
+      }
+      return false;
+    }
+
+    function getBaseName(base) {
+      switch (base) {
+        case 2: return "Binaire (base 2)";
+        case 8: return "Octal (base 8)";
+        case 10: return "Décimal (base 10)";
+        case 16: return "Hexadécimal (base 16)";
+        default: return "";
+      }
+    }
+
+    function updateHistory() {
+      const historyList = document.getElementById("historyList");
+      historyList.innerHTML = "";
+
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = `${item.inputNumber} (${item.inputBase}) → ${item.outputNumber} (${item.outputBase})`;
+        historyList.appendChild(li);
+      });
+    }
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+      history.length = 0; // Réinitialiser le tableau
+      updateHistory(); // Mettre à jour l'interface
+    });
+  </script>
+</body>
+</html>

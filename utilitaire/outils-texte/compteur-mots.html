@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compteur de Mots</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+        }
+
+        header {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 18px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Compteur de Mots</h1>
+        <p>Analysez votre texte facilement</p>
+    </header>
+    <main>
+        <textarea id="inputText" placeholder="Collez ou écrivez votre texte ici..."></textarea>
+        <button id="analyzeBtn">Analyser le texte</button>
+        <div class="result" id="result">
+            <p>Résultats d'analyse :</p>
+            <p id="wordCount">Mots : 0</p>
+            <p id="charCount">Caractères (avec espaces) : 0</p>
+            <p id="charCountNoSpace">Caractères (sans espaces) : 0</p>
+            <p id="sentenceCount">Phrases : 0</p>
+            <p id="paragraphCount">Paragraphes : 0</p>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById("analyzeBtn").addEventListener("click", () => {
+            const text = document.getElementById("inputText").value;
+
+            // Calculer le nombre de mots (inclure apostrophes et traits d'union, exclure ponctuation finale)
+            const words = text
+                .trim()
+                .split(/\s+/)
+                .map(word => word.replace(/[.,!?]+$/, "")) // Supprimer ponctuations finales
+                .filter(word => /^[a-zA-ZÀ-ÖØ-öø-ÿ0-9'-]+$/.test(word)).length;
+
+            // Calculer le nombre de caractères avec espaces
+            const charsWithSpaces = text.length;
+
+            // Calculer le nombre de caractères sans espaces
+            const charsNoSpaces = text.replace(/\s+/g, "").length;
+
+            // Calculer le nombre de phrases
+            const sentences = text.split(/[.!?]+/).filter(sentence => sentence.trim().length > 0).length;
+
+            // Calculer le nombre de paragraphes
+            const paragraphs = text.split(/\n+/).filter(paragraph => paragraph.trim().length > 0).length;
+
+            // Afficher les résultats
+            document.getElementById("wordCount").innerText = `Mots : ${words}`;
+            document.getElementById("charCount").innerText = `Caractères (avec espaces) : ${charsWithSpaces}`;
+            document.getElementById("charCountNoSpace").innerText = `Caractères (sans espaces) : ${charsNoSpaces}`;
+            document.getElementById("sentenceCount").innerText = `Phrases : ${sentences}`;
+            document.getElementById("paragraphCount").innerText = `Paragraphes : ${paragraphs}`;
+        });
+
+
+    </script>
+</body>
+
+</html>
