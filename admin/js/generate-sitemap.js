@@ -40,6 +40,7 @@ function generateSitemap() {
 
   // Sauvegarder le fichier sitemap.xml
   fs.writeFileSync(path.join(__dirname, '../../sitemap.xml'), sitemapContent);
+  
   console.log('Sitemap généré avec succès!');
 }
 
