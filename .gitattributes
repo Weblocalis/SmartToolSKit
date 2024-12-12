@@ -1,2 +1,39 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Ignorer les modules Node.js
+/node_modules/
+
+# Ignorer les fichiers de configuration locaux ou de sauvegarde
+*.log
+*.env
+*.bak
+*.swp
+*.save
+*.idea
+*.vscode
+
+# Ignorer les fichiers de build ou temporaires
+/dist/
+/build/
+/tmp/
+/out/
+
+# Ignorer les fichiers liés à NPM
+package-lock.json
+npm-debug.log
+
+# Ignorer le répertoire généré par les outils comme Gulp, si applicable
+/.gulp/
+
+# Ignorer les fichiers de test
+*.test.js
+*.spec.js
+
+# Ignorer les fichiers générés
+sitemap.xml
+robots.txt
+
+# Ne pas versionner les configurations locales spécifiques à l'utilisateur
+.idea/
+.vscode/
