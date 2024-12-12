@@ -1,50 +1,95 @@
 const fs = require('fs');
 const path = require('path');
-const chokidar = require('chokidar');
-const utilDirectory = path.join(__dirname, '../../utilitaire');  // Répertoire avec vos fichiers HTML
+
+// Charger la configuration depuis config.json
+const configPath = path.resolve(__dirname, '../../data/config.json');
+let config;
+
+try {
+  config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+} catch (error) {
+  console.error('Erreur : Impossible de charger le fichier config.json', error);
+  process.exit(1); // Quitter le script si config.json ne peut pas être chargé
+}
+
+const baseURL = config.baseURL;
+
+// Définir le répertoire racine du projet (ajuster selon vos besoins)
+const projectRoot = path.resolve(__dirname, '../../');
 
 function getHTMLFiles(dir) {
-  let files = fs.readdirSync(dir);
   let htmlFiles = [];
 
-  files.forEach(file => {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
+  try {
+    const files = fs.readdirSync(dir);
 
-    if (stat.isDirectory()) {
-      htmlFiles = htmlFiles.concat(getHTMLFiles(filePath)); // Recherche récursive
-    } else if (file.endsWith('.html')) {
-      htmlFiles.push(filePath.replace(__dirname, '').replace(/\\/g, '/'));
-    }
-  });
+    files.forEach(file => {
+      const filePath = path.join(dir, file);
+      const stat = fs.statSync(filePath);
+
+      if (stat.isDirectory()) {
+        htmlFiles = htmlFiles.concat(getHTMLFiles(filePath));
+      } else if (file.endsWith('.html')) {
+        // Transformer le chemin relatif
+        htmlFiles.push(filePath.replace(projectRoot, '').replace(/\\/g, '/'));
+      }
+    });
+  } catch (error) {
+    console.error(`Erreur lors de la lecture du répertoire : ${dir}`, error);
+  }
 
   return htmlFiles;
 }
 
 function generateSitemap() {
-  const htmlFiles = getHTMLFiles(utilDirectory);
-  const urlBase = 'https://votresite.github.io';  // Remplacez par l'URL de votre GitHub Pages
+  const htmlFiles = getHTMLFiles(projectRoot);
   let sitemapContent = '<?xml version="1.0" encoding="UTF-8"?>\n';
   sitemapContent += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
   htmlFiles.forEach(file => {
-    sitemapContent += `  <url>\n`;
-    sitemapContent += `    <loc>${urlBase}${file}</loc>\n`;
-    sitemapContent += `  </url>\n`;
+    const filePath = path.join(projectRoot, file);
+    let lastModified = 'N/A';
+
+    try {
+      const stats = fs.statSync(filePath);
+      lastModified = stats.mtime.toISOString();
+    } catch (error) {
+      console.error(`Erreur lors de la lecture des métadonnées du fichier : ${file}`, error);
+    }
+
+    let changefreq = 'weekly';
+    let priority = 0.8;
+
+    if (file.includes('index.html')) {
+      changefreq = 'daily';
+      priority = 1.0;
+    }
+
+    console.log(`URL: ${baseURL}${file}`);
+    console.log(`LastMod: ${lastModified}, ChangeFreq: ${changefreq}, Priority: ${priority}`);
+
+    sitemapContent += '  <url>\n';
+    sitemapContent += `    <loc>${baseURL}${file}</loc>\n`;
+    sitemapContent += `    <lastmod>${lastModified}</lastmod>\n`;
+    sitemapContent += `    <changefreq>${changefreq}</changefreq>\n`;
+    sitemapContent += `    <priority>${priority}</priority>\n`;
+    sitemapContent += '  </url>\n';
   });
 
   sitemapContent += '</urlset>';
 
-  // Sauvegarder le fichier sitemap.xml
-  fs.writeFileSync(path.join(__dirname, '../../sitemap.xml'), sitemapContent);
-  console.log('Sitemap généré avec succès!');
+  // Sauvegarder le sitemap.xml
+  const sitemapPath = path.resolve(projectRoot, 'sitemap.xml');
+  try {
+    fs.writeFileSync(sitemapPath, sitemapContent);
+    console.log(`Sitemap généré avec succès à : ${sitemapPath}`);
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du sitemap.xml', error);
+  }
 }
 
-// Générer le sitemap initial
-generateSitemap();
-
-// Surveiller les changements dans les fichiers HTML et générer à nouveau le sitemap
-chokidar.watch('../../utilitaire/**/*.html').on('change', (path) => {
-  console.log(`Fichier modifié: ${path}`);
+try {
   generateSitemap();
-});
+} catch (error) {
+  console.error('Erreur lors de la génération du sitemap :', error);
+}
