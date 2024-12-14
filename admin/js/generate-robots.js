@@ -17,7 +17,15 @@ User-agent: *
 const disallowPaths = [
   '/data/',
   '/utilitaire/',
-  '/admin/' // Exemple de dossier ajouté manuellement
+  '/admin/',
+  '/.gitattributes',
+  '/node_modules/',
+  '/package-lock.json',
+  '/package.json',
+  '/CNAME',
+  '/dashboard.html',
+  '/mail.php',
+  '/README.md'
 ];
 
 // Ajouter les chemins à "Disallow"

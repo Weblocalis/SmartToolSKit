@@ -3,6 +3,14 @@ User-agent: *
 Disallow: /data/
 Disallow: /utilitaire/
 Disallow: /admin/
+Disallow: /.gitattributes
+Disallow: /node_modules/
+Disallow: /package-lock.json
+Disallow: /package.json
+Disallow: /CNAME
+Disallow: /dashboard.html
+Disallow: /mail.php
+Disallow: /README.md
 
 User-agent: Googlebot
 Disallow:
@@ -11,4 +19,4 @@ User-agent: AhrefsBot
 Disallow: /
 
 # Lien dynamique vers le sitemap
-Sitemap: https://weblocalis.github.io/SmartToolsKit/sitemap.xml
+Sitemap: https://toolsmartly.com/sitemap.xml
